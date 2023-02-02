@@ -1,0 +1,13 @@
+[package]
+name = "generate"
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+anyhow = "1.0.68"
+heck = "0.4.1"
+proc-macro2 = { version = "1.0.50", default-features = false }
+quick-xml = "0.27.1"
+quote = { version = "1.0.23", default-features = false }
+reqwest = { version = "0.11.14", default-features = false, features = ["default-tls", "blocking"] }
