@@ -2,6 +2,7 @@ use anyhow::Context;
 use heck::ToUpperCamelCase;
 use proc_macro2::{Ident, Span};
 use quick_xml::events::Event;
+use quote::quote;
 
 const CLDR_VERSION: &'static str = "42";
 
@@ -133,6 +134,7 @@ impl State {
 
     fn generate_enum(self) -> String {
         let mut type_variants = Vec::new();
+        let mut defaults = Vec::new();
         let mut chrono_tz_variants = Vec::new();
         let mut timezone_descriptions = Vec::new();
         let mut tzdb_ids = Vec::new();
@@ -141,6 +143,11 @@ impl State {
                 &convert_bad_chars(&timezone.windows_name).to_upper_camel_case(),
                 Span::call_site(),
             ));
+            if timezone.windows_name == "UTC" {
+                defaults.push(quote! { #[default] });
+            } else {
+                defaults.push(quote! {});
+            }
             chrono_tz_variants.push(Ident::new(
                 &convert_bad_chars(&timezone.tzdb_id),
                 Span::call_site(),
@@ -149,12 +156,13 @@ impl State {
             tzdb_ids.push(timezone.tzdb_id);
         }
 
-        let quoted = quote::quote! {
-            #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+        let quoted = quote! {
+            #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
             #[cfg_attr(feature = "strum", derive(::strum::EnumIter))]
             pub enum Timezone {
                 #(
                     #[doc = #timezone_descriptions]
+                    #defaults
                     #type_variants
                 ),*
             }

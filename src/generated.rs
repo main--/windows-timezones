@@ -1,4 +1,4 @@
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 #[cfg_attr(feature = "strum", derive(::strum::EnumIter))]
 pub enum Timezone {
     #[doc = "(UTC-12:00) International Date Line West"]
@@ -92,6 +92,7 @@ pub enum Timezone {
     #[doc = "(UTC-01:00) Cabo Verde Is."]
     CapeVerdeStandardTime,
     #[doc = "(UTC) Coordinated Universal Time"]
+    #[default]
     Utc,
     #[doc = "(UTC+00:00) Dublin, Edinburgh, Lisbon, London"]
     GmtStandardTime,
