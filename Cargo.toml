@@ -11,8 +11,14 @@ features = ["chrono-tz", "strum"]
 [workspace]
 members = ["generate"]
 
+[[bin]]
+name = "update-schema"
+required-features = ["update-schema"]
+
 [dependencies]
+anyhow = { version = "1.0.68", optional = true }
 chrono-tz = { version = "0.8.1", optional = true }
+heck = { version = "0.4.1", optional = true }
 schemars = { version = "0.8.11", default-features = false, optional = true, features = ["derive"] }
 serde = { version = "1.0.152", default-features = false, optional = true, features = ["derive"] }
 sqlx = { version = "0.6.2", default-features = false, optional = true, features = ["macros"] }
@@ -24,3 +30,4 @@ schemars = ["dep:schemars"]
 serde = ["dep:serde"]
 sqlx = ["dep:sqlx"]
 strum = ["dep:strum"]
+update-schema = ["anyhow", "heck", "strum"]
