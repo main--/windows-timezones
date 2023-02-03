@@ -1,5 +1,12 @@
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
-#[cfg_attr(feature = "strum", derive(::strum::EnumIter))]
+#[cfg_attr(feature = "strum", derive(strum::EnumIter))]
+#[cfg_attr(feature = "schemars", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(
+    feature = "sqlx",
+    derive(sqlx::Type),
+    sqlx(type_name = "windows_timezone", rename_all = "snake_case")
+)]
 pub enum Timezone {
     #[doc = "(UTC-12:00) International Date Line West"]
     DatelineStandardTime,

@@ -13,8 +13,14 @@ members = ["generate"]
 
 [dependencies]
 chrono-tz = { version = "0.8.1", optional = true }
+schemars = { version = "0.8.11", default-features = false, optional = true, features = ["derive"] }
+serde = { version = "1.0.152", default-features = false, optional = true, features = ["derive"] }
+sqlx = { version = "0.6.2", default-features = false, optional = true, features = ["macros"] }
 strum = { version = "0.24.1", default-features = false, features = ["derive"], optional = true }
 
 [features]
 chrono-tz = ["dep:chrono-tz"]
+schemars = ["dep:schemars"]
+serde = ["dep:serde"]
+sqlx = ["dep:sqlx"]
 strum = ["dep:strum"]
