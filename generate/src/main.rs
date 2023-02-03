@@ -1,3 +1,9 @@
+use std::{
+    fs::File,
+    io::{Read, Write},
+    path::Path,
+};
+
 use anyhow::Context;
 use heck::ToUpperCamelCase;
 use proc_macro2::{Ident, Span};
@@ -7,11 +13,28 @@ use quote::quote;
 const CLDR_VERSION: &'static str = "42";
 
 fn main() -> anyhow::Result<()> {
-    let url = format!("https://raw.githubusercontent.com/unicode-org/cldr/release-{CLDR_VERSION}/common/supplemental/windowsZones.xml");
-    let body = reqwest::blocking::get(url)
-        .context("failed to get CLDR data file")?
-        .text()
-        .context("failed to get CLDR data file text content")?;
+    let filename = format!("windowsZones.{CLDR_VERSION}.xml");
+    let path = Path::new(&filename);
+    let body = if let Ok(mut file) = File::open(&path) {
+        eprintln!("Reading from file");
+        let mut buf = String::new();
+        file.read_to_string(&mut buf)
+            .context("failed to read windows zones from file")?;
+        buf
+    } else {
+        eprintln!("Fetching remote");
+        let url = format!("https://raw.githubusercontent.com/unicode-org/cldr/release-{CLDR_VERSION}/common/supplemental/windowsZones.xml");
+        let body = reqwest::blocking::get(url)
+            .context("failed to get CLDR data file")?
+            .text()
+            .context("failed to get CLDR data file text content")?;
+
+        let mut f = File::create(&path).context("failed to create windows zones file")?;
+        f.write_all(body.as_ref())
+            .context("failed to write windows zones file")?;
+
+        body
+    };
 
     let mut reader = quick_xml::reader::Reader::from_str(&body);
     reader.check_comments(true);
