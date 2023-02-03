@@ -2,6 +2,7 @@
 name = "windows-timezones"
 version = "0.1.0-beta.0"
 edition = "2021"
+description = "Windows timezone list from the Unicode CLDR project"
 repository = "https://github.com/kyrias/windows-timezones"
 license = "(MIT OR Apache-2.0) AND Unicode-DFS-2016"
 
