@@ -5,7 +5,7 @@ use std::{
 };
 
 use anyhow::Context;
-use heck::ToUpperCamelCase;
+use heck::{ToUpperCamelCase, ToLowerCamelCase};
 use proc_macro2::{Ident, Span};
 use quick_xml::events::Event;
 use quote::quote;
@@ -52,7 +52,7 @@ fn main() -> anyhow::Result<()> {
         };
     }
 
-    println!("{}", state.generate_enum());
+    println!("{}", generate_enum(state));
 
     Ok(())
 }
@@ -154,79 +154,115 @@ impl State {
 
         Ok(true)
     }
+}
 
-    fn generate_enum(self) -> String {
-        let mut type_variants = Vec::new();
-        let mut defaults = Vec::new();
-        let mut chrono_tz_variants = Vec::new();
-        let mut timezone_descriptions = Vec::new();
-        let mut tzdb_ids = Vec::new();
-        for timezone in self.timezones {
-            type_variants.push(Ident::new(
-                &convert_bad_chars(&timezone.windows_name).to_upper_camel_case(),
-                Span::call_site(),
-            ));
-            if timezone.windows_name == "UTC" {
-                defaults.push(quote! { #[default] });
-            } else {
-                defaults.push(quote! {});
-            }
-            chrono_tz_variants.push(Ident::new(
-                &convert_bad_chars(&timezone.tzdb_id),
-                Span::call_site(),
-            ));
-            timezone_descriptions.push(timezone.user_friendly_name);
-            tzdb_ids.push(timezone.tzdb_id);
+fn generate_enum(state: State) -> String {
+    let mut type_variants = Vec::new();
+    let mut type_jsonschema_variants = Vec::new();
+    let mut type_default = Vec::new();
+
+    let mut chrono_tz_variants = Vec::new();
+
+    let mut timezone_descriptions = Vec::new();
+    let mut tzdb_ids = Vec::new();
+
+    for timezone in state.timezones {
+        let variant_name = convert_bad_chars(&timezone.windows_name).to_upper_camel_case();
+        type_variants.push(Ident::new(&variant_name, Span::call_site()));
+        type_jsonschema_variants.push(variant_name.to_lower_camel_case());
+        if timezone.windows_name == "UTC" {
+            type_default.push(quote! { #[default] });
+        } else {
+            type_default.push(quote! {});
         }
 
-        let quoted = quote! {
-            #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
-            #[cfg_attr(feature = "strum", derive(strum::EnumIter))]
-            #[cfg_attr(feature = "schemars", derive(schemars::JsonSchema))]
-            #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-            #[cfg_attr(
-                feature = "sqlx",
-                derive(sqlx::Type),
-                sqlx(type_name = "windows_timezone", rename_all = "snake_case"),
-            )]
-            pub enum Timezone {
-                #(
-                    #[doc = #timezone_descriptions]
-                    #defaults
-                    #type_variants
-                ),*
-            }
+        chrono_tz_variants.push(Ident::new(
+            &convert_bad_chars(&timezone.tzdb_id),
+            Span::call_site(),
+        ));
 
-            impl Timezone {
-                pub fn description(self) -> &'static str {
-                    match self {
-                        #(
-                            Self::#type_variants => #timezone_descriptions
-                        ),*
-                    }
-                }
+        timezone_descriptions.push(timezone.user_friendly_name);
+        tzdb_ids.push(timezone.tzdb_id);
+    }
 
-                pub fn tzdb_id(self) -> &'static str {
-                    match self {
-                        #(
-                            Self::#type_variants => #tzdb_ids
-                        ),*
-                    }
-                }
-            }
+    let jsonschema_impl = generate_jsonschema_impl(&type_jsonschema_variants);
 
-            #[cfg(feature = "chrono-tz")]
-            impl From<Timezone> for ::chrono_tz::Tz {
-                fn from(value: Timezone) -> Self {
-                    match value {
-                        #(
-                            Timezone::#type_variants => ::chrono_tz::Tz::#chrono_tz_variants
-                        ),*
-                    }
+    let quoted = quote! {
+        #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+        #[cfg_attr(feature = "strum", derive(strum::EnumIter))]
+        #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+        #[cfg_attr(
+            feature = "sqlx",
+            derive(sqlx::Type),
+            sqlx(type_name = "windows_timezone", rename_all = "snake_case"),
+        )]
+        pub enum WindowsTimezone {
+            #(
+                #[doc = #timezone_descriptions]
+                #type_default
+                #type_variants
+            ),*
+        }
+
+        impl WindowsTimezone {
+            pub fn description(self) -> &'static str {
+                match self {
+                    #(
+                        Self::#type_variants => #timezone_descriptions
+                    ),*
                 }
             }
-        };
 
-        quoted.to_string()
+            pub fn tzdb_id(self) -> &'static str {
+                match self {
+                    #(
+                        Self::#type_variants => #tzdb_ids
+                    ),*
+                }
+            }
+        }
+
+        #[cfg(feature = "chrono-tz")]
+        impl From<WindowsTimezone> for ::chrono_tz::Tz {
+            fn from(value: WindowsTimezone) -> Self {
+                match value {
+                    #(
+                        WindowsTimezone::#type_variants => ::chrono_tz::Tz::#chrono_tz_variants
+                    ),*
+                }
+            }
+        }
+
+        #jsonschema_impl
+    };
+
+    quoted.to_string()
+}
+
+fn generate_jsonschema_impl(type_variants_strings: &Vec<String>) -> proc_macro2::TokenStream {
+    quote! {
+        #[cfg(feature = "schemars")]
+        impl schemars::JsonSchema for WindowsTimezone {
+            fn schema_name() -> String {
+                "WindowsTimezone".to_string()
+            }
+
+            fn json_schema(_gen: &mut schemars::gen::SchemaGenerator) -> schemars::schema::Schema {
+                use schemars::schema::{InstanceType, Schema, SchemaObject};
+                Schema::Object(SchemaObject {
+                    instance_type: Some(InstanceType::String.into()),
+                    enum_values: Some(vec![
+                        #(
+                            #type_variants_strings.into()
+                        ),*
+                    ]),
+                    ..Default::default()
+                })
+            }
+
+            fn is_referenceable() -> bool {
+                true
+            }
+        }
     }
 }

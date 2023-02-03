@@ -2,7 +2,7 @@
 
 mod generated;
 
-pub use generated::Timezone;
+pub use generated::WindowsTimezone;
 
 #[cfg(test)]
 mod tests {
@@ -10,7 +10,7 @@ mod tests {
 
     #[test]
     fn it_works() {
-        let tz = Timezone::WEuropeStandardTime;
+        let tz = WindowsTimezone::WEuropeStandardTime;
 
         let description = tz.description();
         assert!(description.starts_with("(UTC+01:00)"));
@@ -24,7 +24,7 @@ mod tests {
     #[test]
     fn chrono_tz_conversion() {
         assert_eq!(
-            Into::<chrono_tz::Tz>::into(Timezone::WEuropeStandardTime),
+            Into::<chrono_tz::Tz>::into(WindowsTimezone::WEuropeStandardTime),
             chrono_tz::Tz::Europe__Berlin
         );
     }
@@ -34,7 +34,7 @@ mod tests {
     fn strum() {
         use strum::IntoEnumIterator;
 
-        let tzs = Timezone::iter().collect::<Vec<_>>();
-        assert!(tzs.contains(&Timezone::WEuropeStandardTime));
+        let tzs = WindowsTimezone::iter().collect::<Vec<_>>();
+        assert!(tzs.contains(&WindowsTimezone::WEuropeStandardTime));
     }
 }

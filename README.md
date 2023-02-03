@@ -10,14 +10,15 @@ version of the crate.
 
 ## SQLx support
 
-When the `sqlx` feature is enable `sqlx::Type` is derived for the `Timezone`
-type.  The supported PostgreSQL type is kept in the `schema.sql` file of this
-repository.  On major version updates you need to ensure that your PostgreSQL
-type matches the `scheam.sql` file of the new version!
+When the `sqlx` feature is enable `sqlx::Type` is derived for the
+`WindowsTimezone` type.  The supported PostgreSQL type is kept in the
+`schema.sql` file of this repository.  On major version updates you need to
+ensure that your PostgreSQL type matches the `scheam.sql` file of the new
+version!
 
 ## Features
 
-- `chrono-tz`: Implements `From<Timezone for chrono_tz::Tz`.
+- `chrono-tz`: Implements `From<WindowsTimezone> for chrono_tz::Tz`.
 - `schemars`: Derives `schemars::JsonSchema`.
 - `serde`: Derives `serde::Serialize` and `serde::Deserialize`.
 - `sqlx`: Derives `sqlx::Type`.
