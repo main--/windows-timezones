@@ -1,9 +1,9 @@
 # Windows Timezones
 
-This crate takes the list of Windows' (the OS) default timezones[^1] from the [Unicode CLDR](https://github.com/unicode-org/cldr) project's
-[supplemental data files](https://github.com/unicode-org/cldr/blob/main/common/supplemental/windowsZones.xml) and converts it into a Rust enum that allows for
-retrieving the Windows timezone description and the corresponding default tzdb
-ID.
+This crate takes the list of Windows' (the OS) default timezones[^1] from the
+[Unicode CLDR] project's [supplemental data files] and converts it into a Rust
+enum that allows for retrieving the Windows timezone description and the
+corresponding default tzdb ID.
 
 The enum variants are guaranteed to be stay consistent within the same major
 version of the crate.
@@ -25,6 +25,7 @@ version!
 - `sqlx`: Derives `sqlx::Type`.
 - `strum`: Derives `strum::EnumIter`.
 
----
+[Unicode CLDR]: https://github.com/unicode-org/cldr
+[supplemental data files]: https://github.com/unicode-org/cldr/blob/main/common/supplemental/windowsZones.xml
 
-[^1]: The list currently not up-to-date with official [Windows Documentation](https://learn.microsoft.com/en-us/windows-hardware/manufacture/desktop/default-time-zones?view=windows-11#t).
+[^1]: See the official [Windows documentation](https://learn.microsoft.com/en-us/windows-hardware/manufacture/desktop/default-time-zones).  Note that the CLDR list is more up-to-date than the actual Windows documentation page.
