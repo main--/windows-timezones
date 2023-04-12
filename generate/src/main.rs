@@ -10,7 +10,7 @@ use proc_macro2::{Ident, Span};
 use quick_xml::events::Event;
 use quote::quote;
 
-const CLDR_VERSION: &'static str = "42";
+const CLDR_VERSION: &'static str = "43";
 
 fn main() -> anyhow::Result<()> {
     let filename = format!("windowsZones.{CLDR_VERSION}.xml");
