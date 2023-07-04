@@ -1,8 +1,24 @@
 #![doc = include_str!("../README.md")]
+#![cfg_attr(not(feature = "std"), no_std)]
 
 mod generated;
 
 pub use generated::WindowsTimezone;
+
+#[cfg(feature = "std")]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+/// An error returned when parsing a [`WindowsTimezone`] using [`from_str`] fails.
+pub struct ParseWindowsTimezoneError;
+
+#[cfg(feature = "std")]
+impl std::fmt::Display for ParseWindowsTimezoneError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        "the given string was not a known Windows timezone identifier".fmt(f)
+    }
+}
+
+#[cfg(feature = "std")]
+impl std::error::Error for ParseWindowsTimezoneError {}
 
 #[cfg(test)]
 mod tests {
@@ -18,6 +34,20 @@ mod tests {
         assert!(description.contains("Stockholm"));
 
         assert_eq!(tz.tzdb_id(), "Europe/Berlin");
+    }
+
+    #[cfg(feature = "std")]
+    #[test]
+    fn from_str() {
+        assert_eq!(
+            "W. Europe Standard Time".parse::<WindowsTimezone>(),
+            Ok(WindowsTimezone::WEuropeStandardTime),
+        );
+
+        assert_eq!(
+            "I am a teapot".parse::<WindowsTimezone>(),
+            Err(ParseWindowsTimezoneError),
+        );
     }
 
     #[cfg(feature = "chrono-tz")]
