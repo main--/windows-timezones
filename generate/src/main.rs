@@ -5,7 +5,7 @@ use std::{
 };
 
 use anyhow::Context;
-use heck::{ToUpperCamelCase, ToLowerCamelCase};
+use heck::{ToLowerCamelCase, ToUpperCamelCase};
 use proc_macro2::{Ident, Span};
 use quick_xml::events::Event;
 use quote::quote;
