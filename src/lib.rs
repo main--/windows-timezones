@@ -7,7 +7,7 @@ pub use generated::WindowsTimezone;
 
 #[cfg(feature = "std")]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-/// An error returned when parsing a [`WindowsTimezone`] using [`from_str`] fails.
+/// An error returned when parsing a [`WindowsTimezone`] using [`FromStr::from_str`](std::str::FromStr::from_str) fails.
 pub struct ParseWindowsTimezoneError;
 
 #[cfg(feature = "std")]
