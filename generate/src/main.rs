@@ -163,6 +163,7 @@ fn generate_enum(state: State) -> String {
 
     let mut chrono_tz_variants = Vec::new();
 
+    let mut timezone_windows_names = Vec::new();
     let mut timezone_descriptions = Vec::new();
     let mut tzdb_ids = Vec::new();
 
@@ -181,6 +182,7 @@ fn generate_enum(state: State) -> String {
             Span::call_site(),
         ));
 
+        timezone_windows_names.push(timezone.windows_name);
         timezone_descriptions.push(timezone.user_friendly_name);
         tzdb_ids.push(timezone.tzdb_id);
     }
@@ -230,6 +232,22 @@ fn generate_enum(state: State) -> String {
                         WindowsTimezone::#type_variants => ::chrono_tz::Tz::#chrono_tz_variants
                     ),*
                 }
+            }
+        }
+
+        #[cfg(feature = "std")]
+        impl std::str::FromStr for WindowsTimezone {
+            type Err = crate::ParseWindowsTimezoneError;
+
+            fn from_str(s: &str) -> Result<Self, Self::Err> {
+                let tz = match s {
+                    #(
+                        #timezone_windows_names => Self::#type_variants,
+                    )*
+                    _ => return Err(crate::ParseWindowsTimezoneError),
+                };
+
+                Ok(tz)
             }
         }
 
