@@ -1,0 +1,40 @@
+name: Rust
+
+on:
+  push:
+    branches: ["master"]
+  pull_request:
+    branches: ["master"]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Lint
+      run: cargo fmt --check
+
+
+  build-no-default-features:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build (no default features)
+      run: cargo build --no-default-features --verbose
+    - name: Run tests (no default features)
+      run: cargo test --no-default-features --verbose
+
+  build-all-features:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build (all features)
+      run: cargo build --all-features --verbose
+    - name: Run tests (all features)
+      run: cargo test --all-features --verbose

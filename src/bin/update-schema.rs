@@ -16,7 +16,8 @@ fn main() -> anyhow::Result<()> {
         f.write_fmt(format_args!("    '{stringified}'"))
             .context("failed to write enum variant")?;
         if iter.peek().is_some() {
-            f.write_all(b",\n").context("failed to write line trailer")?;
+            f.write_all(b",\n")
+                .context("failed to write line trailer")?;
         } else {
             f.write_all(b"\n").context("failed to write line trailer")?;
         }
