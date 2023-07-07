@@ -17,13 +17,13 @@ name = "update-schema"
 required-features = ["update-schema"]
 
 [dependencies]
-anyhow = { version = "1.0.71", optional = true }
-chrono-tz = { version = "0.8.3", optional = true }
-heck = { version = "0.4.1", optional = true }
-schemars = { version = "0.8.12", default-features = false, optional = true, features = ["derive"] }
-serde = { version = "1.0.165", default-features = false, optional = true, features = ["derive"] }
-sqlx = { version = "0.7.0", default-features = false, optional = true, features = ["macros"] }
-strum = { version = "0.25.0", default-features = false, features = ["derive"], optional = true }
+anyhow = { version = "1", optional = true }
+chrono-tz = { version = "0.8", optional = true }
+heck = { version = "0.4", optional = true }
+schemars = { version = "0.8", default-features = false, optional = true, features = ["derive"] }
+serde = { version = "1", default-features = false, optional = true, features = ["derive"] }
+sqlx = { version = "0.7", default-features = false, optional = true, features = ["macros"] }
+strum = { version = "0.25", default-features = false, features = ["derive"], optional = true }
 
 [features]
 default = ["std"]
