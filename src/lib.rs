@@ -52,6 +52,11 @@ mod tests {
         );
 
         assert_eq!(
+            WindowsTimezone::WEuropeStandardTime.name(),
+            "W. Europe Standard Time",
+        );
+
+        assert_eq!(
             "I am a teapot".parse::<WindowsTimezone>(),
             Err(ParseWindowsTimezoneError),
         );
